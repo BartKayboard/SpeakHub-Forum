@@ -1,26 +1,127 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Foro</title>
-  <link rel="stylesheet" type="text/css" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ruleta de Apuesta</title>
+
+  <!-- Estilos CSS -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding-top: 50px;
+    }
+
+   h1 {
+     text-align:center ;
+   }
+   
+   .button-container {
+        display:flex ;
+        justify-content:center ; 
+        margin-top :30px;   
+     } 
+
+     .button{
+       padding:12px ;
+       background-color:#007bff ;
+       color:#fff ;
+       border:none ;
+       border-radius :4px ;    
+     }
+     
+     /* Animación de la ruleta */
+@keyframes rotateAnimation {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+
+.ruleta-img {
+	animation-name: rotateAnimation;
+	animation-duration:5s; /* Duración de la animación en segundos */
+	animation-timing-function:cubic-bezier(.15,.41,.69,.94);
+	animation-iteration-count: infinite; /* Repetir infinitamente */
+}
+
+</style>
+
 </head>
+
 <body>
+<div class="container">
 
-  <h1>Bienvenido a SpeakHub</h1>
+<!-- Encabezado de la ruleta -->
+<h1>Ruleta de Apuesta</h1>
 
-  <!-- Contenedor para los mensajes -->
-  <div id="message-container"></div>
+<!-- Ruleta (imagen) -->
+<img src="images.jpeg" alt="Ruleta" class="ruleta-img">
 
-  <!-- Formulario para enviar nuevos mensajes -->
-  <form id="message-form">
-    <input type="text" id="name-input" placeholder="Nombre">
-    <textarea id="message-input" placeholder="Mensaje"></textarea>
-    <button type="submit">Enviar mensaje</button>
-  </form>
+<!-- Sección para ingresar cantidad a apostar y girar la ruleta -->
+<div class="button-container">
+Cantidad a apostar:
+$<input type="number" id="amountInput" min=0 step=0.01 value=0></input>
+<button id ="spinButton"class = "button">Girar Ruleta</button>
+<span id='result'></span> <!-- Mostrar resultado ganador o perdedor -->
+<span id='balance'></span> <!-- Saldo actual del jugador -->
+</div>  
 
-<script src="./script.js"></script>
+</div>
+
+<!-- Scripts JS -->
+<script>
+const spinButton = document.getElementById('spinButton');
+const resultSpan = document.getElementById('result');
+let balance;
+
+// Verificar si ya existe un saldo guardado en el almacenamiento local
+if(localStorage.getItem("saldo")){
+  // Cargar el saldo guardado
+  balance = parseFloat(localStorage.getItem("saldo"));
+} else {
+  // Establecer un nuevo saldo inicial de $100 y guardarlo en el almacenamiento local
+  balance = 100;
+  localStorage.setItem("saldo", balance.toString());
+}
+
+// Actualizar el saldo actual en la página
+document.getElementById('balance').textContent=`Saldo actual: $${balance.toFixed(2)}`;
+
+spinButton.addEventListener('click', () => {
+  const amountInput = document.getElementById('amountInput');
+  const betAmount = parseFloat(amountInput.value);
+  
+  if (betAmount > 0 && betAmount <= balance) {
+    // Lógica para determinar si ganó o perdió
+    const randomNum = Math.random();
+    
+    if (randomNum < 0.5) { // Probabilidad de perder del 50%
+      balance -= betAmount;
+      resultSpan.textContent = `Perdiste $${betAmount.toFixed(2)}.`;
+    } else {
+      balance += betAmount;
+      resultSpan.textContent = `Ganaste $${betAmount.toFixed(2)}!`;
+    }
+    
+     // Actualizar saldo actual en la página
+     document.getElementById('balance').textContent=`Saldo actual: $${balance.toFixed(2)}`;
+     
+     // Guardar el nuevo saldo en el almacenamiento local
+     localStorage.setItem("saldo", balance.toString());
+     
+     // Resetear cantidad a apostar y habilitar el botón nuevamente
+     amountInput.value=0; 
+   } else{
+	   alert("La cantidad a apostar debe ser mayor que cero y no puede exceder tu saldo.");
+   }
+});
+
+</script>
+
 </body>
 </html>
-
-
-
